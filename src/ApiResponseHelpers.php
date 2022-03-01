@@ -14,7 +14,7 @@ use function response;
 
 trait ApiResponseHelpers
 {
-    private ?array $_api_helpers_defaultSuccessData = ['success' => true];
+    private ?array $_api_helpers_defaultSuccessData = ['status' => 'success'];
 
     /**
      * @param string|\Exception $message
@@ -39,14 +39,25 @@ trait ApiResponseHelpers
     {
         $contents = $this->morphToArray($contents) ?? [];
 
-        $data = [] === $contents
-            ? $this->_api_helpers_defaultSuccessData
-            : $contents;
+        // $data =
+        //     [] === $contents
+        //     ? $this->_api_helpers_defaultSuccessData
+        //     : [ 'data' => $contents ];
 
+        $data = [];
+        if ([] === $contents) {
+            $data =  $this->_api_helpers_defaultSuccessData ;
+        } else {
+            $data['status'] = 'success';
+            $data['data'] = $contents ;
+        }
+
+        // var_dump($data);
+            
         return $this->apiResponse($data);
     }
 
-    public function setDefaultSuccessResponse(?array $content = null): self
+    public function setDefaultSuccessResponse(?array $content = ['status' => 'success']): self
     {
         $this->_api_helpers_defaultSuccessData = $content ?? [];
         return $this;
@@ -88,8 +99,8 @@ trait ApiResponseHelpers
     {
         $data ??= [];
         return $this->apiResponse(
-          $this->morphToArray($data),
-          Response::HTTP_CREATED
+            $this->morphToArray($data),
+            Response::HTTP_CREATED
         );
     }
     
@@ -112,8 +123,8 @@ trait ApiResponseHelpers
     public function respondTeapot(): JsonResponse
     {
         return $this->apiResponse(
-          ['message' => 'I\'m a teapot'],
-          Response::HTTP_I_AM_A_TEAPOT
+            ['message' => 'I\'m a teapot'],
+            Response::HTTP_I_AM_A_TEAPOT
         );
     }
 
